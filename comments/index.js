@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { randomBytes } = require('crypto');
 const cors = require('cors');
+const axios = require('axios');
 
 const app = express();
 app.use(bodyParser.json());
@@ -15,15 +16,15 @@ app.get('/posts/:id/comments', (req, res) => {
 
 app.post('/posts/:id/comments', async (req, res) => {
   const commentId = randomBytes(4).toString('hex');
-  const { content } = req.body;
+  const { content } = req.body; //this is the content of the comment or comment itself
 
   const comments = commentsByPostId[req.params.id] || []; //this will give us an array or undefined if we have never had a comment created associated with the post before
-
-  comments.push({ id: commentId, content }); //content is the content the user just provided
+  //req.params.id is checking for comments associated with the id in commentsByPostId object on line 11
+  comments.push({ id: commentId, content }); //content is the content the user just provided and id being pushed into comments array on line 21
 
   commentsByPostId[req.params.id] = comments; //assigns comments array back to given post inside commentsByPostId object
 
-  await axios.post('http://localhost:4005/events', {
+  await axios.post('http://localhost:4005/events', { //after we add comment into array we post event
     type: 'CommentCreated',
     data: {
       id: commentId,
@@ -35,7 +36,7 @@ app.post('/posts/:id/comments', async (req, res) => {
   res.status(201).send(comments);  //send back entire array of comments
 });
 
-app.post('/events', (req, res) => {
+app.post('/events', (req, res) => {  //this communicates event to necessary services
 
   res.send({});
 })

@@ -9,21 +9,21 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const posts = {}
+const posts = {} //stores every post that we create (no database)
 
-app.get('/posts', (req, res) => {
+app.get('/posts', (req, res) => { //someone makes get request to /posts we send all posts
   res.send(posts);
 });
 
 app.post('/posts', async (req, res) => {
   const id = randomBytes(4).toString('hex');
-  const { title } = req.body;
+  const { title } = req.body; //title that the user just send to us in new post
 
-  posts[id] = {
+  posts[id] = { //associates id and the title with posts[id]
     id, title
   };
 
-  await axios.post('http://localhost:4005/events', {
+  await axios.post('http://localhost:4005/events', { //after someone tries to make a post we post this event to event endpoint
     type: 'PostCreated',
     data: {
       id, title
